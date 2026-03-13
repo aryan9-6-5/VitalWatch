@@ -141,13 +141,13 @@ async def _send_push_notification(patient: dict, risk_score: float, flags: list)
         f"CRITICAL ALERT: {patient['name']}\n"
         f"Risk score: {risk_score:.2f}\n"
         f"Flags: {', '.join(flags[:3])}"
-    )
+    ).encode("utf-8", errors="replace").decode("utf-8")
 
     try:
         async with httpx.AsyncClient() as http:
             await http.post(
                 f"https://ntfy.sh/{settings.NTFY_TOPIC}",
-                content=message.encode("utf-8"),
+                content=message.encode("ascii", errors="replace"),
                 headers={
                     "Title":    f"VitalWatch CRITICAL — {patient['name']}",
                     "Priority": "urgent",
