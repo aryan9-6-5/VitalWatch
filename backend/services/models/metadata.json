@@ -1,0 +1,57 @@
+{
+  "regressor": {
+    "name": "XGBoost",
+    "file": "xgb_regressor.pkl",
+    "target": "risk_score",
+    "needs_scaling": false,
+    "r2": 0.9983,
+    "mae": 0.0058,
+    "rmse": 0.0127
+  },
+  "classifier": {
+    "name": "LightGBM",
+    "file": "lgbm_classifier.pkl",
+    "target": "risk_class",
+    "needs_scaling": false,
+    "classes": [
+      "Ambiguous",
+      "Bad",
+      "Good"
+    ],
+    "f1": 0.9885,
+    "acc": 0.9885
+  },
+  "features": [
+    "systolic_bp",
+    "diastolic_bp",
+    "heart_rate",
+    "spo2",
+    "temperature",
+    "respiratory_rate",
+    "ecg",
+    "cardiac_output",
+    "pulse_pressure",
+    "shock_index",
+    "oxygen_deficit",
+    "hr_temp_ratio",
+    "hr_trend",
+    "spo2_trend",
+    "temp_trend",
+    "rr_trend",
+    "risk_trend",
+    "hr_mean_3d",
+    "spo2_mean_3d",
+    "temp_mean_3d"
+  ],
+  "thresholds": {
+    "Good": "risk_score < 0.06",
+    "Ambiguous": "0.06 <= risk_score < 0.30",
+    "Bad": "risk_score >= 0.30"
+  },
+  "derived_features": {
+    "pulse_pressure": "systolic_bp - diastolic_bp",
+    "shock_index": "heart_rate / systolic_bp",
+    "oxygen_deficit": "100 - spo2",
+    "hr_temp_ratio": "heart_rate / temperature"
+  }
+}
