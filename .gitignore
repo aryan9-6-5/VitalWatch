@@ -2,5 +2,4 @@ venv/
 .env
 __pycache__/
 *.pyc
-backend/models/*.pkl
 *.egg-info/
