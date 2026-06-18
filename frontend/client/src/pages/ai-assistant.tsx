@@ -130,14 +130,25 @@ export default function AIAssistant() {
   const [conversationMode, setConversationMode] = useState<"chat" | "assessment" | "emergency">("chat");
   const [attachments, setAttachments] = useState<Array<{name: string; type: string; url: string}>>([]);
   const [sessionId, setSessionId] = useState<string | undefined>(undefined);
+  const [patients, setPatients] = useState<Array<{id: string; name: string; condition: string}>>([]);
+  const [selectedPatientId, setSelectedPatientId] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Default patient ID for the chatbot (first patient or a demo ID)
-  const DEMO_PATIENT_ID = "demo-patient";
+  // Fetch real patients on mount so we can use a valid UUID
+  useEffect(() => {
+    getPatients()
+      .then((pts) => {
+        setPatients(pts);
+        if (pts.length > 0 && !selectedPatientId) {
+          setSelectedPatientId(pts[0].id);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const sendMessage = async () => {
     if (!inputMessage.trim() && attachments.length === 0) return;
@@ -190,7 +201,7 @@ export default function AIAssistant() {
         try {
           const data = await predictFull({
             text: currentInput,
-            patient_id: DEMO_PATIENT_ID,
+            patient_id: selectedPatientId || patients[0]?.id || "",
             session_id: sessionId,
           });
 
@@ -551,6 +562,26 @@ export default function AIAssistant() {
                 </span>
               </div>
               <div className="flex items-center space-x-2">
+                {patients.length > 0 && (
+                  <Select value={selectedPatientId} onValueChange={setSelectedPatientId}>
+                    <SelectTrigger className="glass-morphism border-0 w-52">
+                      <div className="flex items-center space-x-2">
+                        <Users className="w-4 h-4 text-vitals-primary" />
+                        <SelectValue placeholder="Select Patient" />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {patients.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          <div className="flex items-center space-x-2">
+                            <span className="font-medium">{p.name}</span>
+                            <span className="text-xs text-gray-400">{p.condition}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
                 <Button variant="outline" size="sm" className="glass-morphism">
                   <Archive className="w-4 h-4 mr-1" />
                   Save
